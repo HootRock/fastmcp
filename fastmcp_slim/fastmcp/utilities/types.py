@@ -15,6 +15,7 @@ from typing import (
     Protocol,
     TypeAlias,
     Union,
+    cast,
     get_args,
     get_origin,
     get_type_hints,
@@ -143,9 +144,11 @@ def get_cached_typeadapter(cls: T) -> TypeAdapter[T]:
 
                 if inspect.ismethod(cls):
                     new_method = types.MethodType(new_func, cls.__self__)
-                    return TypeAdapter(new_method)
+                    # Pydantic accepts callable schemas at runtime, beyond the
+                    # type expressions described by its TypeForm annotation.
+                    return TypeAdapter[Any](cast(Any, new_method))
                 else:
-                    return TypeAdapter(new_func)
+                    return TypeAdapter[Any](cast(Any, new_func))
 
     return TypeAdapter(cls)
 

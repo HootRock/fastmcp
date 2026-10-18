@@ -20,7 +20,9 @@ T = TypeVar("T", default=Any)
 
 
 class ElicitResult(MCPElicitResult, Generic[T]):
-    content: T | None = None
+    # Handlers can return richer Python values before the callback normalizes
+    # them to the SDK's wire-content dictionary.
+    content: T | None = None  # ty: ignore[invalid-attribute-override]
 
 
 ElicitationHandler: TypeAlias = Callable[

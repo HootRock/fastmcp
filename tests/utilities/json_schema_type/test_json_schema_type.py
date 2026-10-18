@@ -126,8 +126,8 @@ class TestBooleanSchemas:
         result = json_schema_to_type(schema)
         validator = TypeAdapter(result)
         obj = validator.validate_python({"name": "test", "anything": 42})
-        assert obj.name == "test"  # type: ignore[attr-defined]  # ty:ignore[unresolved-attribute]
-        assert obj.anything == 42  # type: ignore[attr-defined]  # ty:ignore[unresolved-attribute]
+        assert cast(Any, obj).name == "test"
+        assert cast(Any, obj).anything == 42
 
     def test_false_property_schema_rejects_values(self):
         """A property with schema `false` should reject any provided value."""
@@ -139,7 +139,7 @@ class TestBooleanSchemas:
         result = json_schema_to_type(schema)
         validator = TypeAdapter(result)
         obj = validator.validate_python({"name": "test"})
-        assert obj.name == "test"  # type: ignore[attr-defined]  # ty:ignore[unresolved-attribute]
+        assert cast(Any, obj).name == "test"
 
         with pytest.raises(ValidationError):
             validator.validate_python({"name": "test", "never": "anything"})
@@ -160,8 +160,8 @@ class TestBooleanSchemas:
         obj = validator.validate_python(
             {"known": "hello", "flexible": [1, 2, 3], "extra": "field"}
         )
-        assert obj.known == "hello"  # type: ignore[attr-defined]  # ty:ignore[unresolved-attribute]
-        assert obj.flexible == [1, 2, 3]  # type: ignore[attr-defined]  # ty:ignore[unresolved-attribute]
+        assert cast(Any, obj).known == "hello"
+        assert cast(Any, obj).flexible == [1, 2, 3]
 
     def test_issue_3783_boolean_property_schemas(self):
         """Regression test for GitHub issue #3783."""
@@ -179,9 +179,9 @@ class TestBooleanSchemas:
         result = json_schema_to_type(schema)
         validator = TypeAdapter(result)
         obj = validator.validate_python({"ts": 123, "level": "info", "app": "myapp"})
-        assert obj.ts == 123  # type: ignore[attr-defined]  # ty:ignore[unresolved-attribute]
-        assert obj.level == "info"  # type: ignore[attr-defined]  # ty:ignore[unresolved-attribute]
-        assert obj.app == "myapp"  # type: ignore[attr-defined]  # ty:ignore[unresolved-attribute]
+        assert cast(Any, obj).ts == 123
+        assert cast(Any, obj).level == "info"
+        assert cast(Any, obj).app == "myapp"
 
 
 class TestConstrainedTypes:
@@ -270,7 +270,7 @@ class TestCrashPrevention:
         T = json_schema_to_type(schema)
         ta = TypeAdapter(T)
         result = ta.validate_python({"class": "A", "return": 1, "import": True})
-        assert result.class_ == "A"  # ty:ignore[unresolved-attribute]
+        assert cast(Any, result).class_ == "A"
 
     def test_empty_enum(self):
         """Empty enum means no value is valid — should reject like a false schema."""
@@ -384,7 +384,7 @@ class TestUnsupportedPatternFallback:
             T = json_schema_to_type(schema)
         ta = TypeAdapter(T)
         result = ta.validate_python({"tag_key": "Name", "value": "test"})
-        assert result.tag_key == "Name"  # ty:ignore[unresolved-attribute]
+        assert cast(Any, result).tag_key == "Name"
 
     def test_fallback_only_triggers_for_regex_errors(self):
         """Non-regex SchemaErrors must not be swallowed by the fallback path.

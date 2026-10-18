@@ -1,6 +1,6 @@
 import copy
 import sys
-from typing import Any
+from typing import Any, cast
 from unittest.mock import patch
 
 import pytest
@@ -640,7 +640,7 @@ class TestCompressSchema:
             """A greeting function."""
             return f"Hello {title} {name}"
 
-        adapter = TypeAdapter(greet)
+        adapter = TypeAdapter[Any](cast(Any, greet))
         schema = adapter.json_schema()
 
         # Compress with title pruning

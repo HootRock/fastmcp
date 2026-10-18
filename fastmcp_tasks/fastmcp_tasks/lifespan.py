@@ -12,7 +12,7 @@ and runs the worker (with the snapshot-restore dependency) until shutdown.
 from __future__ import annotations
 
 import asyncio
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager, suppress
 from typing import TYPE_CHECKING, Any
 
@@ -28,7 +28,7 @@ logger = get_logger(__name__)
 @asynccontextmanager
 async def docket_lifespan(
     server: FastMCP, settings: DocketSettings
-) -> AsyncIterator[None]:
+) -> AsyncGenerator[None, None]:
     """Manage the Docket instance and Worker for background task execution.
 
     Sets ``server._docket`` / ``server._worker`` for the duration and registers
