@@ -288,7 +288,7 @@ class SkillProvider(Provider):
         resources.append(
             SkillResource(
                 uri=AnyUrl(
-                    f"skill://{skill.name}/{quote(self._main_file_name, safe='/')}"
+                    f"skill://{quote(skill.name, safe='')}/{quote(self._main_file_name, safe='/')}"
                 ),
                 name=f"{skill.name}/{self._main_file_name}",
                 description=skill.description,
@@ -301,7 +301,7 @@ class SkillProvider(Provider):
         # Synthetic manifest
         resources.append(
             SkillResource(
-                uri=AnyUrl(f"skill://{skill.name}/_manifest"),
+                uri=AnyUrl(f"skill://{quote(skill.name, safe='')}/_manifest"),
                 name=f"{skill.name}/_manifest",
                 description=f"File listing for {skill.name}",
                 mime_type="application/json",
@@ -321,7 +321,7 @@ class SkillProvider(Provider):
                 resources.append(
                     SkillFileResource(
                         uri=AnyUrl(
-                            f"skill://{skill.name}/{quote(file_info.path, safe='/')}"
+                            f"skill://{quote(skill.name, safe='')}/{quote(file_info.path, safe='/')}"
                         ),
                         name=f"{skill.name}/{file_info.path}",
                         description=f"File from {skill.name} skill",
@@ -349,6 +349,7 @@ class SkillProvider(Provider):
             return None
 
         skill_name, file_path = parts
+        skill_name = unquote(skill_name)
         if skill_name != skill.name:
             return None
         file_path = unquote(file_path)
@@ -396,7 +397,7 @@ class SkillProvider(Provider):
         skill = self.skill_info
         return [
             SkillFileTemplate(
-                uri_template=f"skill://{skill.name}/{{path*}}",
+                uri_template=f"skill://{quote(skill.name, safe='')}/{{path*}}",
                 name=f"{skill.name}_files",
                 description=f"Access files within {skill.name}",
                 mime_type="application/octet-stream",
@@ -428,6 +429,7 @@ class SkillProvider(Provider):
             return None
 
         skill_name, file_path = parts
+        skill_name = unquote(skill_name)
         if skill_name != skill.name:
             return None
 
@@ -435,8 +437,9 @@ class SkillProvider(Provider):
         if file_path == "_manifest" or file_path == self._main_file_name:
             return None
 
+        # Match the accepted URI spelling, including existing unescaped names.
         return SkillFileTemplate(
-            uri_template=f"skill://{skill.name}/{{path*}}",
+            uri_template=f"skill://{parts[0]}/{{path*}}",
             name=f"{skill.name}_files",
             description=f"Access files within {skill.name}",
             mime_type="application/octet-stream",
