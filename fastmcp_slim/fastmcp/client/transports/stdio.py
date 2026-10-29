@@ -68,6 +68,7 @@ class StdioTransport(ClientTransport):
 
         self._session: ClientSession | None = None
         self._session_options: TransportOptions | None = None
+        self._session_kwargs: SessionKwargs = {}
         self._active_sessions = 0
         self._connect_lock = anyio.Lock()
         self._connect_task: asyncio.Task | None = None
@@ -109,7 +110,10 @@ class StdioTransport(ClientTransport):
             # to a client that wants different ones would silently give it the
             # first client's behavior. Rebuild it when it's idle; refuse when
             # another client is using it, since tearing it down would break them.
-            if self._connect_task is not None and self._session_options != options:
+            if self._connect_task is not None and (
+                self._session_options != options
+                or self._session_kwargs != session_kwargs
+            ):
                 if self._active_sessions:
                     raise RuntimeError(
                         "This stdio transport has a live session built for different "
@@ -136,6 +140,7 @@ class StdioTransport(ClientTransport):
             # comparing against an unset value would read it as a mismatch and
             # tear down the connection being established.
             self._session_options = options
+            self._session_kwargs = session_kwargs.copy()
 
             # start the connection task
             self._connect_task = asyncio.create_task(
@@ -192,6 +197,7 @@ class StdioTransport(ClientTransport):
         self._connect_task = None
         self._session = None
         self._session_options = None
+        self._session_kwargs = {}
         self._stop_event = anyio.Event()
         self._ready_event = anyio.Event()
 

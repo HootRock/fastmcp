@@ -97,6 +97,13 @@ async def efficient_multiple_operations():
         await client.call_tool("process_data", {"file": "data.csv"})
 ```
 
+A kept-alive session is reused only when the connection options and session
+settings match, including request timeouts and callback objects. Connecting with
+different settings restarts an idle subprocess; if another connection still uses
+that session, the transport raises an error instead. Reusing the same `Client`
+preserves its session. Separate `Client` objects create their own callbacks, so
+use one transport per client when they need to stay connected concurrently.
+
 For complete isolation between connections, disable session persistence:
 
 ```python
